@@ -1,41 +1,45 @@
-const ethers = require("ethers");
-const fs = require("fs");
-require("dotenv").config();
+const ethers = require("ethers")
+const fs = require("fs")
+require("dotenv").config()
 
 async function main() {
-    // RPC Server : HTTP://192.168.32.1:7545
-    const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
+    // RPC Server : HTTP://127.0.0.1:7545
+    const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL)
 
-    //   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
-    const encryptedJson = fs.readFileSync("./.encryptedKey.json", "utf-8");
-    let wallet = new ethers.Wallet.fromEncryptedJsonSync(
-        encryptedJson,
-        process.env.PRIVATE_KEY_PASSWORD
-    );
-    wallet = await wallet.connect(provider);
+    const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider)
+
+    //! Safer way to work with private keys
+
+    //   const encryptedJson = fs.readFileSync("./.encryptedKey.json", "utf-8");
+    //   let wallet = new ethers.Wallet.fromEncryptedJsonSync(
+    //     encryptedJson,
+    //     process.env.PRIVATE_KEY_PASSWORD
+    //   );
+    //   wallet = await wallet.connect(provider);
+
     const abi = fs.readFileSync(
         "./SimpleStorage_sol_SimpleStorage.abi",
         "utf-8"
-    );
+    )
     const binary = fs.readFileSync(
         "./SimpleStorage_sol_SimpleStorage.bin",
         "utf-8"
-    );
-    const contractFactory = new ethers.ContractFactory(abi, binary, wallet);
-    console.log("Deploying contract...");
+    )
+    const contractFactory = new ethers.ContractFactory(abi, binary, wallet)
+    console.log("Deploying contract...")
 
     // await is used to stop code execution
     // until the deploying is over.
     // Translation: wait for the factory to deploy and continue...
-    const contract = await contractFactory.deploy();
-    await contract.deployTransaction.wait(1);
+    const contract = await contractFactory.deploy()
+    await contract.deployTransaction.wait(1)
 
-    const currentFavoriteNumber = await contract.retrieve();
-    console.log(`Current favorite nbr: ${currentFavoriteNumber.toString()}`);
-    const transactionResponse = await contract.store("7");
-    const transactionReceipt = transactionResponse.wait(1);
-    const updatedFavoriteNumber = await contract.retrieve();
-    console.log(`Updated favorite nbr: ${updatedFavoriteNumber}`);
+    const currentFavoriteNumber = await contract.retrieve()
+    console.log(`Current favorite nbr: ${currentFavoriteNumber.toString()}`)
+    const transactionResponse = await contract.store("7")
+    const transactionReceipt = transactionResponse.wait(1)
+    const updatedFavoriteNumber = await contract.retrieve()
+    console.log(`Updated favorite nbr: ${updatedFavoriteNumber}`)
 
     // These two are different but often confused
     // One the tx response comes with the contract object after deploying a contract
@@ -72,6 +76,6 @@ async function main() {
 main()
     .then(() => process.exit(0))
     .catch((error) => {
-        console.error(error);
-        process.exit(1);
-    });
+        console.error(error)
+        process.exit(1)
+    })
