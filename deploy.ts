@@ -1,12 +1,16 @@
-const ethers = require("ethers")
-const fs = require("fs")
-require("dotenv").config()
+// const ethers = require("ethers")
+// const fs = require("fs")
+// require("dotenv").config()
+
+import { ethers } from "ethers"
+import * as fs from "fs"
+import "dotenv/config" 
 
 async function main() {
     // RPC Server : HTTP://127.0.0.1:7545
-    const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL)
+    const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL!)
 
-    const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider)
+    const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider)
 
     //! Safer way to work with private keys
 
@@ -33,6 +37,7 @@ async function main() {
     // Translation: wait for the factory to deploy and continue...
     const contract = await contractFactory.deploy()
     await contract.deployTransaction.wait(1)
+    console.log(`Contract Address: ${contract.address}`)
 
     const currentFavoriteNumber = await contract.retrieve()
     console.log(`Current favorite nbr: ${currentFavoriteNumber.toString()}`)
